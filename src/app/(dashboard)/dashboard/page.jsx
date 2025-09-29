@@ -33,6 +33,14 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 function AdminPage() {
   const [menus, setMenus] = useState([]);
@@ -43,6 +51,10 @@ function AdminPage() {
     category: "",
   });
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [editingMenuId, setEditingMenuId] = useState(null);
+
+  const categories = ["nasi", "mi", "cemilan", "minuman"];
 
   useEffect(() => {
     fetchMenus();
@@ -93,6 +105,36 @@ function AdminPage() {
     }
   };
 
+  const handleEditClick = (menu) => {
+    setIsEditMode(true);
+    setEditingMenuId(menu.menu_id);
+    setNewMenu({
+      name: menu.name,
+      description: menu.description,
+      price: menu.price,
+      category: menu.category,
+    });
+    setIsDialogOpen(true);
+  };
+
+  const handleUpdateMenu = async (e) => {
+    e.preventDefault();
+    const res = await fetch(`/api/menus/${editingMenuId}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(newMenu),
+    });
+    if (!res.ok) throw new Error("Failed to update menu");
+
+    // Tutup dialog dan reset state
+    setIsDialogOpen(false);
+    setIsEditMode(false);
+    setEditingMenuId(null);
+    setNewMenu({ name: "", description: "", price: "", category: "" });
+
+    fetchMenus();
+  };
+
   return (
     <div className="p-5">
       <div className="flex flex-col gap-5">
@@ -101,19 +143,37 @@ function AdminPage() {
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <div className="flex justify-start">
             <DialogTrigger asChild>
-              <Button type="button" className="w-auto">
-                Add
+              <Button
+                type="button"
+                className="inline-flex w-auto self-start"
+                onClick={() => {
+                  setIsEditMode(false);
+                  setNewMenu({
+                    name: "",
+                    description: "",
+                    price: "",
+                    category: "",
+                  });
+                }}
+              >
+                Add Menu
               </Button>
             </DialogTrigger>
           </div>
 
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Add New Menu</DialogTitle>
+              <DialogTitle>
+                {isEditMode ? "Edit Menu" : "Add New Menu"}
+              </DialogTitle>
             </DialogHeader>
 
-            <form onSubmit={handleAddMenu} className="space-y-3">
-              <div>
+            <form
+              onSubmit={isEditMode ? handleUpdateMenu : handleAddMenu}
+              className="space-y-3"
+            >
+              {" "}
+              <div className="flex flex-col gap-2">
                 <label className="text-sm font-medium">Name</label>
                 <Input
                   value={newMenu.name}
@@ -123,8 +183,7 @@ function AdminPage() {
                   required
                 />
               </div>
-
-              <div>
+              <div className="flex flex-col gap-2">
                 <label className="text-sm font-medium">Description</label>
                 <Textarea
                   value={newMenu.description}
@@ -134,8 +193,7 @@ function AdminPage() {
                   required
                 />
               </div>
-
-              <div>
+              <div className="flex flex-col gap-2">
                 <label className="text-sm font-medium">Price</label>
                 <Input
                   type="number"
@@ -146,18 +204,27 @@ function AdminPage() {
                   required
                 />
               </div>
-
-              <div>
+              <div className="flex flex-col gap-2">
                 <label className="text-sm font-medium">Category</label>
-                <Input
-                  value={newMenu.category}
-                  onChange={(e) =>
-                    setNewMenu({ ...newMenu, category: e.target.value })
-                  }
-                  required
-                />
-              </div>
 
+                <Select
+                  value={newMenu.category}
+                  onValueChange={(value) =>
+                    setNewMenu({ ...newMenu, category: value })
+                  }
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Select a category" />
+                  </SelectTrigger>
+
+                  <SelectContent>
+                    <SelectItem value="nasi">Nasi</SelectItem>
+                    <SelectItem value="mi">Mi</SelectItem>
+                    <SelectItem value="kudapan">Kudapan</SelectItem>
+                    <SelectItem value="minuman">Minuman</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
               <DialogFooter>
                 <Button type="submit">Save</Button>
               </DialogFooter>
@@ -187,7 +254,11 @@ function AdminPage() {
                 <TableCell>{menu.category}</TableCell>
                 <TableCell>
                   <div className="flex gap-3">
-                    <button className="hover:text-yellow-400">
+                    <button
+                      type="button"
+                      onClick={() => handleEditClick(menu)}
+                      className="hover:text-yellow-400"
+                    >
                       <IoPencil size={16} />
                     </button>
 
