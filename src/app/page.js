@@ -20,11 +20,5 @@ export default function MyComponents() {
     fetchData();
   }, []);
 
-  return (
-    <div>
-      {menus.map((menu) => (
-        <div key={menu.menu_id}>{menu.name}</div>
-      ))}
-    </div>
-  );
+  return <div></div>;
 }
