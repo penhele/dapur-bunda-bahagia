@@ -1,24 +1,8 @@
-"use client";
-
-import { useEffect, useState } from "react";
-
-export default function MyComponents() {
-  const [menus, setMenus] = useState([]);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const data = await fetch("/api/menus");
-        const response = await data.json();
-        setMenus(response.menus);
-        console.log(response);
-      } catch (error) {
-        console.log(error);
-      }
-    };
-
-    fetchData();
-  }, []);
-
-  return <div></div>;
+export default function HomePage() {
+  return (
+    <div className="p-10">
+      <h1 className="text-2xl font-bold">Selamat Datang di Admin Dashboard</h1>
+      <p>Silakan buka menu di sidebar untuk melanjutkan.</p>
+    </div>
+  );
 }
