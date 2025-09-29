@@ -43,8 +43,6 @@ function AdminPage() {
     category: "",
   });
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [isEditMode, setIsEditMode] = useState(false);
-  const [editingMenuId, setEditingMenuId] = useState(null);
 
   useEffect(() => {
     fetchMenus();
@@ -73,42 +71,11 @@ function AdminPage() {
 
       if (!res.ok) throw new Error("Failed to add menu");
 
-      resetForm();
+      setNewMenu({ name: "", description: "", price: "", category: "" });
+      setIsDialogOpen(false);
       fetchMenus();
     } catch (error) {
       console.error("Add menu error:", error);
-    }
-  };
-
-  const handleEditClick = (menu) => {
-    setIsEditMode(true);
-    setEditingMenuId(menu.menu_id);
-    setNewMenu({
-      name: menu.name,
-      description: menu.description,
-      price: menu.price,
-      category: menu.category,
-    });
-    setIsDialogOpen(true);
-  };
-
-  const handleUpdateMenu = async (e) => {
-    e.preventDefault();
-    try {
-      const res = await fetch(`/api/menus/${editingMenuId}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(newMenu),
-      });
-
-      if (!res.ok) throw new Error("Failed to update menu");
-
-      resetForm();
-      fetchMenus();
-    } catch (error) {
-      console.error("Update menu error:", error);
     }
   };
 
@@ -126,43 +93,26 @@ function AdminPage() {
     }
   };
 
-  const resetForm = () => {
-    setNewMenu({ name: "", description: "", price: "", category: "" });
-    setIsDialogOpen(false);
-    setIsEditMode(false);
-    setEditingMenuId(null);
-  };
-
   return (
     <div className="p-5">
       <div className="flex flex-col gap-5">
         <h1 className="text-2xl font-bold">Dashboard</h1>
 
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-          {!isEditMode && (
+          <div className="flex justify-start">
             <DialogTrigger asChild>
-              <Button
-                type="button"
-                className="inline-flex w-auto self-start"
-                onClick={() => {
-                  setIsEditMode(false);
-                  setNewMenu({ name: "", description: "", price: "", category: "" });
-                }}
-              >
-                Add Menu
+              <Button type="button" className="w-auto">
+                Add
               </Button>
             </DialogTrigger>
-          )}
+          </div>
 
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>{isEditMode ? "Edit Menu" : "Add New Menu"}</DialogTitle>
+              <DialogTitle>Add New Menu</DialogTitle>
             </DialogHeader>
 
-            <form
-              onSubmit={isEditMode ? handleUpdateMenu : handleAddMenu}
-              className="space-y-3"
-            >
+            <form onSubmit={handleAddMenu} className="space-y-3">
               <div>
                 <label className="text-sm font-medium">Name</label>
                 <Input
@@ -209,7 +159,7 @@ function AdminPage() {
               </div>
 
               <DialogFooter>
-                <Button type="submit">{isEditMode ? "Update" : "Save"}</Button>
+                <Button type="submit">Save</Button>
               </DialogFooter>
             </form>
           </DialogContent>
@@ -237,11 +187,7 @@ function AdminPage() {
                 <TableCell>{menu.category}</TableCell>
                 <TableCell>
                   <div className="flex gap-3">
-                    <button
-                      type="button"
-                      onClick={() => handleEditClick(menu)}
-                      className="hover:text-yellow-400"
-                    >
+                    <button className="hover:text-yellow-400">
                       <IoPencil size={16} />
                     </button>
 
