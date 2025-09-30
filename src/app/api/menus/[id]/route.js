@@ -27,12 +27,12 @@ export async function PUT(request, context) {
   const { id } = await context.params;
 
   try {
-    const { name, description, price, category } = await request.json();
+    const { name, description, price, category, image } = await request.json();
     const db = await createConnection();
 
     const sql = `
       UPDATE menus
-      SET name = ?, description = ?, price = ?, category = ?
+      SET name = ?, description = ?, price = ?, category = ?, image = ?
       WHERE menu_id = ?
     `;
 
@@ -41,6 +41,7 @@ export async function PUT(request, context) {
       description,
       price,
       category,
+      image,
       id,
     ]);
 

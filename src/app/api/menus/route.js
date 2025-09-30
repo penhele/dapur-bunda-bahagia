@@ -20,16 +20,16 @@ export async function GET() {
 
 export async function POST(request) {
   try {
-    const { name, description, price, category } = await request.json();
+    const { name, description, price, category, image } = await request.json();
     const db = await createConnection();
 
     const menu_id = randomUUID();
 
     const sql = `
-      INSERT INTO menus (menu_id, name, description, price, category) VALUES (?, ?, ?, ?, ?)
+      INSERT INTO menus (menu_id, name, description, price, category, image) VALUES (?, ?, ?, ?, ?, ?)
     `;
 
-    const values = [menu_id, name, description, price, category];
+    const values = [menu_id, name, description, price, category, image];
 
     await db.query(sql, values);
 

@@ -36,7 +36,6 @@ import {
 import {
   Select,
   SelectContent,
-  SelectGroup,
   SelectItem,
   SelectTrigger,
   SelectValue,
@@ -49,12 +48,11 @@ function AdminPage() {
     description: "",
     price: "",
     category: "",
+    image: "",
   });
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
   const [editingMenuId, setEditingMenuId] = useState(null);
-
-  const categories = ["nasi", "mi", "cemilan", "minuman"];
 
   useEffect(() => {
     fetchMenus();
@@ -83,7 +81,13 @@ function AdminPage() {
 
       if (!res.ok) throw new Error("Failed to add menu");
 
-      setNewMenu({ name: "", description: "", price: "", category: "" });
+      setNewMenu({
+        name: "",
+        description: "",
+        price: "",
+        category: "",
+        image: "",
+      });
       setIsDialogOpen(false);
       fetchMenus();
     } catch (error) {
@@ -113,6 +117,7 @@ function AdminPage() {
       description: menu.description,
       price: menu.price,
       category: menu.category,
+      image: menu.image,
     });
     setIsDialogOpen(true);
   };
@@ -130,7 +135,13 @@ function AdminPage() {
     setIsDialogOpen(false);
     setIsEditMode(false);
     setEditingMenuId(null);
-    setNewMenu({ name: "", description: "", price: "", category: "" });
+    setNewMenu({
+      name: "",
+      description: "",
+      price: "",
+      category: "",
+      image: "",
+    });
 
     fetchMenus();
   };
@@ -153,6 +164,7 @@ function AdminPage() {
                     description: "",
                     price: "",
                     category: "",
+                    image: "",
                   });
                 }}
               >
@@ -225,6 +237,16 @@ function AdminPage() {
                   </SelectContent>
                 </Select>
               </div>
+              <div className="flex flex-col gap-2">
+                <label className="text-sm font-medium">Image URL</label>
+                <Input
+                  value={newMenu.image}
+                  onChange={(e) =>
+                    setNewMenu({ ...newMenu, image: e.target.value })
+                  }
+                  required
+                />
+              </div>
               <DialogFooter>
                 <Button type="submit">Save</Button>
               </DialogFooter>
@@ -235,6 +257,7 @@ function AdminPage() {
         <Table>
           <TableHeader>
             <TableRow>
+              <TableHead>Image</TableHead>
               <TableHead>Name</TableHead>
               <TableHead>Description</TableHead>
               <TableHead>Price</TableHead>
@@ -246,6 +269,27 @@ function AdminPage() {
           <TableBody>
             {menus.map((menu) => (
               <TableRow key={menu.menu_id}>
+                <TableCell>
+                  <Dialog>
+                    <DialogTrigger asChild>
+                      <button>
+                        <img src={menu.image} width={100} alt={menu.name} />
+                      </button>
+                    </DialogTrigger>
+                    <DialogContent className="w-[90vw] max-w-[600px]">
+                      <DialogHeader>
+                        <DialogTitle>
+                          <DialogTitle>{menu.name}</DialogTitle>
+                        </DialogTitle>
+                      </DialogHeader>
+                      <img
+                        src={menu.image}
+                        alt={menu.name}
+                        className="w-full h-auto"
+                      />
+                    </DialogContent>
+                  </Dialog>{" "}
+                </TableCell>
                 <TableCell>{menu.name}</TableCell>
                 <TableCell className="max-w-[250px] overflow-x-auto whitespace-nowrap">
                   <div className="w-max">{menu.description}</div>
